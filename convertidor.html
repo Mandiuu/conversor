@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Conversor ARS → CLP → USD</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 15px;
+        }
+        
+        .container {
+            background: white;
+            padding: 30px 25px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            max-width: 500px;
+            width: 100%;
+        }
+        
+        h1 {
+            color: #333;
+            margin-bottom: 8px;
+            font-size: 26px;
+            text-align: center;
+        }
+        
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+            text-align: center;
+        }
+        
+        .input-group {
+            margin-bottom: 25px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 600;
+            font-size: 15px;
+        }
+        
+        input {
+            width: 100%;
+            padding: 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 20px;
+            transition: border-color 0.3s;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+        
+        input:focus {
+            outline: none;
+            border-color: #fc8c7f;
+        }
+        
+        /* Mejorar input para mobile */
+        input[type="number"] {
+            -moz-appearance: textfield;
+        }
+        
+        input[type="number"]::-webkit-inner-spin-button,
+        input[type="number"]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        
+        .result {
+            background: linear-gradient(135deg, #f8f9fa 0%, #ffe8e8 100%);
+            padding: 25px 20px;
+            border-radius: 15px;
+            margin-top: 20px;
+            text-align: center;
+            border: 2px solid #ffd4d4;
+        }
+        
+        .result-label {
+            color: #666;
+            font-size: 13px;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .result-amount {
+            font-size: 42px;
+            color: #fc8c7f;
+            font-weight: bold;
+            margin: 10px 0;
+            word-break: break-all;
+        }
+        
+        .result-usd {
+            font-size: 28px;
+            color: #27ae60;
+            font-weight: bold;
+            margin: 15px 0 10px 0;
+            padding-top: 15px;
+            border-top: 1px dashed #ffd4d4;
+        }
+        
+        .usd-label {
+            color: #666;
+            font-size: 12px;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .exchange-rate {
+            color: #666;
+            font-size: 13px;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #ffd4d4;
+            line-height: 1.5;
+        }
+        
+        .loading {
+            color: #999;
+            font-style: italic;
+        }
+        
+        .error {
+            color: #e74c3c;
+            font-size: 13px;
+            margin-top: 15px;
+            padding: 12px;
+            background: #fee;
+            border-radius: 8px;
+            text-align: center;
+        }
+        
+        .update-btn {
+            width: 100%;
+            padding: 14px;
+            margin-top: 15px;
+            background: linear-gradient(135deg, #fc8c7f 0%, #ff9a8b 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        .update-btn:active {
+            transform: scale(0.98);
+            background: linear-gradient(135deg, #ff7c6a 0%, #ff8a7a 100%);
+        }
+        
+        /* Responsive para móviles pequeños */
+        @media (max-width: 400px) {
+            .container {
+                padding: 25px 20px;
+            }
+            
+            h1 {
+                font-size: 24px;
+            }
+            
+            .result-amount {
+                font-size: 36px;
+            }
+            
+            .result-usd {
+                font-size: 24px;
+            }
+            
+            input {
+                font-size: 18px;
+                padding: 14px;
+            }
+        }
+        
+        /* Modo landscape en móviles */
+        @media (max-height: 600px) and (orientation: landscape) {
+            body {
+                padding: 10px;
+            }
+            
+            .container {
+                padding: 20px;
+            }
+            
+            h1 {
+                font-size: 22px;
+                margin-bottom: 5px;
+            }
+            
+            .subtitle {
+                margin-bottom: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🇦🇷 → 🇨🇱 → 🇺🇸 Conversor</h1>
+        <p class="subtitle">Pesos Argentinos a Pesos Chilenos y Dólares</p>
+        
+        <div class="input-group">
+            <label for="ars">Monto en Pesos Argentinos (ARS)</label>
+            <input 
+                type="number" 
+                id="ars" 
+                placeholder="Ej: 10000" 
+                min="0" 
+                step="0.01"
+                inputmode="decimal">
+        </div>
+        
+        <div class="result">
+            <div class="result-label">Pesos Chilenos</div>
+            <div class="result-amount" id="result-clp">$0</div>
+            
+            <div class="usd-label">Dólares Estadounidenses</div>
+            <div class="result-usd" id="result-usd">US$0.00</div>
+            
+            <div class="exchange-rate" id="rate">Cargando tasas de cambio...</div>
+        </div>
+        
+        <button class="update-btn" onclick="getExchangeRates()">
+            🔄 Actualizar tasas ahora
+        </button>
+        
+        <div class="error" id="error" style="display: none;"></div>
+    </div>
+
+    <script>
+        let exchangeRateARS_CLP = null;
+        let exchangeRateARS_USD = null;
+
+        // Función para obtener las tasas de cambio
+        async function getExchangeRates() {
+            try {
+                document.getElementById('rate').innerHTML = 
+                    '<span class="loading">Actualizando...</span>';
+                
+                const response = await fetch('https://api.exchangerate-api.com/v4/latest/ARS');
+                const data = await response.json();
+                
+                exchangeRateARS_CLP = data.rates.CLP;
+                exchangeRateARS_USD = data.rates.USD;
+                
+                const now = new Date().toLocaleString('es-CL', {
+                    day: '2-digit',
+                    month: '2-digit',
+                    year: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+                
+                document.getElementById('rate').innerHTML = 
+                    `<strong>1 ARS = ${exchangeRateARS_CLP.toFixed(4)} CLP</strong><br>
+                    <strong>1 ARS = ${exchangeRateARS_USD.toFixed(6)} USD</strong><br>
+                    <small>Actualizada: ${now}</small>`;
+                
+                document.getElementById('error').style.display = 'none';
+                
+                // Reconvertir si hay un valor
+                convert();
+                
+            } catch (error) {
+                document.getElementById('rate').textContent = 
+                    'No se pudo obtener las tasas de cambio';
+                exchangeRateARS_CLP = 5.5; // Tasa de respaldo aproximada
+                exchangeRateARS_USD = 0.001; // Tasa de respaldo aproximada
+                
+                const errorDiv = document.getElementById('error');
+                errorDiv.textContent = 
+                    '⚠️ Usando tasas aproximadas. Verifica con fuentes oficiales para transacciones importantes.';
+                errorDiv.style.display = 'block';
+            }
+        }
+
+        // Función para convertir
+        function convert() {
+            const arsAmount = parseFloat(document.getElementById('ars').value);
+            
+            if (isNaN(arsAmount) || arsAmount < 0 || arsAmount === 0) {
+                document.getElementById('result-clp').textContent = '$0';
+                document.getElementById('result-usd').textContent = 'US$0.00';
+                return;
+            }
+            
+            if (exchangeRateARS_CLP === null || exchangeRateARS_USD === null) {
+                document.getElementById('result-clp').textContent = '...';
+                document.getElementById('result-usd').textContent = '...';
+                return;
+            }
+            
+            // Convertir a CLP
+            const clpAmount = arsAmount * exchangeRateARS_CLP;
+            document.getElementById('result-clp').textContent = 
+                `$${clpAmount.toLocaleString('es-CL', { 
+                    minimumFractionDigits: 0,
+                    maximumFractionDigits: 0 
+                })}`;
+            
+            // Convertir a USD
+            const usdAmount = arsAmount * exchangeRateARS_USD;
+            document.getElementById('result-usd').textContent = 
+                `US$${usdAmount.toLocaleString('en-US', { 
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2 
+                })}`;
+        }
+
+        // Event listener para el input
+        document.getElementById('ars').addEventListener('input', convert);
+
+        // Cargar tasas de cambio al inicio
+        getExchangeRates();
+        
+        // Actualizar tasas cada 24 horas (86400000 ms)
+        setInterval(getExchangeRates, 86400000);
+    </script>
+</body>
+</html>
